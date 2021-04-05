@@ -1,4 +1,4 @@
-# intelligent_construction
+# intelligent_construction（日常练手小项目）
 
 ## Project setup
 ```
