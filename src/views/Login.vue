@@ -15,7 +15,7 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="people"></b-icon>
               </b-input-group-prepend>
-              <b-form-input placeholder="用户名"></b-form-input>
+              <b-form-input placeholder="用户名" v-model="username"></b-form-input>
             </b-input-group>
           </b-form-group>
 
@@ -25,14 +25,14 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="key"></b-icon>
               </b-input-group-prepend>
-              <b-form-input type="password" placeholder="密码"></b-form-input>
+              <b-form-input type="password" placeholder="密码" v-model="password"></b-form-input>
             </b-input-group>
           </b-form-group>
         </b-card-text>
 
         <!--登录按钮-->
         <b-form-group>
-          <b-button variant="success" style="width: 100%">
+          <b-button variant="success" style="width: 100%" @click="login">
             登录
           </b-button>
         </b-form-group>
@@ -42,8 +42,39 @@
 </template>
 
 <script>
+import {api} from "@/utils";
+
 export default {
-  name: 'Login'
+  name: 'Login',
+  data() {
+    return {
+      username: '',
+      password: '',
+    }
+  },
+  methods: {
+    login() {
+      api.bind(this)('/login/web_login', {
+        username: this.username,
+        password: this.password,
+      }, response => {
+        let data = response.data;
+        if (!data.success) {
+          this.$bvModal.msgBoxOk('用户名或密码错误，请核对后输入', {
+            title: '登录失败',
+            size: 'sm',
+            buttonSize: 'sm',
+            okVariant: 'danger',
+            headerClass: 'p-2 border-bottom-0',
+            footerClass: 'p-2 border-top-0',
+            centered: true
+          });
+        } else {
+          this.$router.push('/index/dash-board');
+        }
+      })
+    }
+  }
 }
 </script>
 
@@ -62,7 +93,7 @@ export default {
   position: fixed;
   width: 100vw;
   height: 100vh;
-  filter:blur(3px);
+  filter: blur(3px);
   background-size: cover;
   background-repeat: no-repeat;
   background-image: url("../assets/images/background.png");
