@@ -70,6 +70,7 @@ export default {
             centered: true
           });
         } else {
+          localStorage.setItem('token', data.token);
           this.$router.push('/index/dash-board');
         }
       })
