@@ -73,6 +73,7 @@ export default {
   display: inline-block;
   top: 0;
   height: 100%;
+  width: calc(100% - 200px);
 }
 
 .header {

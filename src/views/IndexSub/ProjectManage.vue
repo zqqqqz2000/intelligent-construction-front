@@ -1,10 +1,72 @@
 <template>
-  <div>
-    当前项目: {{ currProject ? currProject.name : '请选择项目' }}
-    <b-button v-b-modal.modal-change-proj size="sm" variant="success">
-      <b-icon icon="pencil-fill"></b-icon>
-      切换
-    </b-button>
+  <div class="manage-page">
+    <div class="project-header">
+      当前项目:
+      <div class="project-name">
+        {{ currProject ? currProject.name : '请选择项目' }}
+      </div>
+      <b-button v-b-modal.modal-change-proj size="sm" variant="success">
+        <b-icon icon="pencil-fill"></b-icon>
+        切换
+      </b-button>
+    </div>
+    <!-- 项目信息面板 -->
+    <b-card
+        header="项目信息"
+        title="当前项目信息"
+        class="project-info-card base-card"
+    >
+      <div v-if="currProject" class="project-info-content">
+        <div>
+          项目名称: {{ currProject.name }}
+        </div>
+        <div>
+          项目进度: {{ currProject.complete_per }} %
+          <b-progress
+              :value="currProject.complete_per"
+              :max="100"
+              show-value
+              style="width: 70%"
+          >
+          </b-progress>
+        </div>
+        <div>
+          项目投资: {{ currProject.cost }}
+        </div>
+        <div>
+          项目位置: 精度 {{ currProject.lng }} 纬度 {{ currProject.lat }}
+        </div>
+        <div>
+          项目规模: {{ currProject.scale }}
+        </div>
+        <div>
+          详细描述: {{ currProject.describe }}
+        </div>
+      </div>
+      <b-button size="sm" style="margin-top: 20px" variant="success">
+        <b-icon icon="pencil-square"></b-icon>
+      </b-button>
+    </b-card>
+    <!-- 项目进度面板 -->
+    <b-card
+        header="项目进度"
+        title="项目进度"
+        class="project-half-card base-card"
+    >
+      项目进度...尚未完成
+    </b-card>
+    <!-- 项目管理面板 -->
+    <b-card
+        header="项目管理"
+        title="项目管理"
+        class="project-half-card base-card"
+    >
+      <b-button size="sm" variant="primary" style="margin-right: 10px">通知项目经理</b-button>
+      <b-button size="sm" variant="success" style="margin-right: 10px">工单下发</b-button>
+      <b-button size="sm" variant="success" style="margin-right: 10px">推进项目</b-button>
+      <b-button size="sm" variant="danger" style="margin-right: 10px">关闭项目</b-button>
+    </b-card>
+    <!-- 切换项目弹出层 -->
     <b-modal id="modal-change-proj" size="xl">
       <template v-slot:modal-header>
         <div>
@@ -152,6 +214,11 @@ export default {
 </script>
 
 <style scoped>
+.manage-page {
+  padding: 10px;
+  width: 100%;
+}
+
 .change-display-zone {
   height: 70vh;
 }
@@ -161,6 +228,40 @@ export default {
 }
 
 .new-project-modal > * {
+  margin-bottom: 10px;
+}
+
+.project-header {
+  margin-bottom: 10px;
+}
+
+.project-name {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: 1000;
+  margin-right: 10px;
+  color: gray;
+}
+
+.base-card {
+  margin: 10px;
+  float: left;
+}
+
+.project-info-card {
+  width: calc(100% - 20px);
+}
+
+.project-half-card {
+  width: calc(50% - 20px);
+}
+
+.project-info-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.project-info-content > div {
   margin-bottom: 10px;
 }
 
