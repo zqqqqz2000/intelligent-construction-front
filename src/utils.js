@@ -13,3 +13,15 @@ export function api(apiName, data, callback, withToken = false) {
         data,
     }).then(callback);
 }
+
+export function uploadPic(pic, callback) {
+    let formData = new FormData();
+    formData.append('pic', pic);
+    let config = {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        },
+    }
+
+    this.axios.post(serverUrl + '/pic/upload', formData, config).then(callback);
+}
