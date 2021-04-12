@@ -18,14 +18,22 @@
     >
       <div v-if="currProject" class="project-info-content">
         <div>
-          项目名称: {{ currProject.name }}
+          项目名称:
+          <div style="display: inline-block" v-if="!edit">
+            {{ currProject.name }}
+          </div>
+          <div v-else>
+            <input style="width: 7em" type="text" v-model="currProject.name">
+          </div>
         </div>
         <div>
-          项目进度: {{ currProject.complete_per }} %
+          项目进度:
+          <div style="display: inline-block" v-if="!edit">
+            {{ currProject.complete_per }} %
+          </div>
           <b-progress
               :value="currProject.complete_per"
               :max="100"
-              show-value
               style="width: 70%"
           >
           </b-progress>
@@ -43,7 +51,7 @@
           详细描述: {{ currProject.describe }}
         </div>
       </div>
-      <b-button size="sm" style="margin-top: 20px" variant="success">
+      <b-button size="sm" style="margin-top: 20px" variant="success" @click="edit = !edit">
         <b-icon icon="pencil-square"></b-icon>
       </b-button>
     </b-card>
@@ -63,7 +71,7 @@
     >
       <b-button size="sm" variant="primary" style="margin-right: 10px">通知项目经理</b-button>
       <b-button size="sm" variant="success" style="margin-right: 10px">工单下发</b-button>
-      <b-button size="sm" variant="success" style="margin-right: 10px">推进项目</b-button>
+      <b-button size="sm" variant="success" style="margin-right: 10px" v-b-modal.add-progress-modal>推进项目</b-button>
       <b-button size="sm" variant="danger" style="margin-right: 10px">关闭项目</b-button>
     </b-card>
     <!-- 切换项目弹出层 -->
@@ -132,6 +140,23 @@
                      @change="uploadFile($event.target.files[0])"></b-form-file>
       </div>
     </b-modal>
+    <!-- 推进项目窗口 -->
+    <b-modal id="add-progress-modal" title="推进项目（百分比）" @ok="doAddProgress">
+      <b-form-group
+          id="fieldset-1"
+          description="可写负值，表示回滚项目进度"
+          label="推进进度"
+          label-for="input-1"
+      >
+        <b-form-input
+            id="input-1"
+            v-model="addProgress"
+            type="number"
+            :state="state"
+            trim
+        ></b-form-input>
+      </b-form-group>
+    </b-modal>
   </div>
 
 </template>
@@ -149,6 +174,7 @@ export default {
   data() {
     return {
       currProject: null,
+      edit: false,
       changeDisplayMap: false,
       allProjectSelect: {
         currPage: 1,
@@ -163,10 +189,17 @@ export default {
         pic: null,
         lng: 0,
         lat: 0,
-      }
+      },
+      addProgress: 0,
     }
   },
   methods: {
+    doAddProgress() {
+      if (this.currProject) {
+        this.currProject.complete_per = this.currProject.complete_per * 1 + this.addProgress * 1;
+        this.alterProject()
+      }
+    },
     getProjectInfo(pids) {
       api.bind(this)(
           '/project/get_project',
@@ -208,7 +241,20 @@ export default {
           },
           true
       )
-    }
+    },
+    alterProject() {
+      api.bind(this)(
+          '/project/alter_project',
+          this.currProject,
+          (response) => {
+            let data = response.data;
+            if (!data.success) {
+              alert(data.info);
+            }
+          },
+          true,
+      )
+    },
   }
 }
 </script>
