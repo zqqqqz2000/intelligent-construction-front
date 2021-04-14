@@ -70,6 +70,8 @@
         class="project-half-card base-card"
     >
       <b-button size="sm" variant="primary" style="margin-right: 10px">通知项目经理</b-button>
+      <b-button size="sm" variant="primary" style="margin-right: 10px" v-b-modal.manage-project-manager>管理项目管理者
+      </b-button>
       <b-button size="sm" variant="success" style="margin-right: 10px">工单下发</b-button>
       <b-button size="sm" variant="success" style="margin-right: 10px" v-b-modal.add-progress-modal>推进项目</b-button>
       <b-button size="sm" variant="danger" style="margin-right: 10px">关闭项目</b-button>
@@ -99,7 +101,7 @@
                   variant="success"
                   size="sm"
                   style="margin-right: 4px"
-                  @click="currProject=row.item"
+                  @click="currProject=row.item; getProjectSupervisors()"
                   :disabled="currProject && row.item.id === currProject.id"
               >
                 <b-icon icon="check2"></b-icon>
@@ -140,7 +142,7 @@
                      @change="uploadFile($event.target.files[0])"></b-form-file>
       </div>
     </b-modal>
-    <!-- 推进项目窗口 -->
+    <!-- 推进项目弹出层 -->
     <b-modal id="add-progress-modal" title="推进项目（百分比）" @ok="doAddProgress">
       <b-form-group
           id="fieldset-1"
@@ -156,6 +158,27 @@
             trim
         ></b-form-input>
       </b-form-group>
+    </b-modal>
+    <!-- 管理项目管理者弹出层 -->
+    <b-modal title="管理项目监理" id="manage-project-manager">
+      <b-input-group>
+        <b-form-input placeholder="监理用户名" v-model="addSupervisorUsername"></b-form-input>
+
+        <b-input-group-append>
+          <b-button variant="outline-primary">
+            <b-icon icon="search" @click="addSupervisor"></b-icon>
+          </b-button>
+        </b-input-group-append>
+      </b-input-group>
+      当前项目管理人
+      <div v-for="supervisor in currentProjectSupervisors" :key="supervisor.id">
+        <b-card>
+          姓名：{{ supervisor.name }}
+          <b-badge variant="success">{{ supervisor.username }}</b-badge>
+          <b-button size="sm" variant="danger" style="float: right" @click="deleteSupervisor(supervisor.id)">删除
+          </b-button>
+        </b-card>
+      </div>
     </b-modal>
   </div>
 
@@ -173,6 +196,8 @@ export default {
   },
   data() {
     return {
+      addSupervisorUsername: '',
+      currentProjectSupervisors: [],
       currProject: null,
       edit: false,
       changeDisplayMap: false,
@@ -194,6 +219,21 @@ export default {
     }
   },
   methods: {
+    getProjectSupervisors() {
+      api.bind(this)(
+          '/project/get_project_supervisors',
+          {
+            id: this.currProject.id,
+          },
+          (response) => {
+            let data = response.data;
+            if (!data.success)
+              alert(data.info);
+            this.currentProjectSupervisors = data.supervisors;
+          },
+          true,
+      )
+    },
     doAddProgress() {
       if (this.currProject) {
         this.currProject.complete_per = this.currProject.complete_per * 1 + this.addProgress * 1;
@@ -210,6 +250,44 @@ export default {
             console.log(response);
           }
       );
+    },
+    deleteSupervisor(id) {
+      console.log(id, this.currProject.id);
+      api.bind(this)(
+          '/project/remove_project_supervisor',
+          {
+            id,
+            pid: this.currProject.id
+          },
+          (response) => {
+            let data = response.data;
+            if (data.success) {
+              this.getProjectSupervisors();
+            } else {
+              alert(data.info);
+            }
+          },
+          true,
+      )
+      ;
+    },
+    addSupervisor() {
+      api.bind(this)(
+          '/project/add_project_supervisor',
+          {
+            id: this.currProject.id,
+            username: this.addSupervisorUsername,
+          },
+          (response) => {
+            let data = response.data;
+            if (data.success) {
+              this.getProjectSupervisors();
+            } else {
+              alert(data.info);
+            }
+          },
+          true,
+      )
     },
     getMyProjectInfo(page) {
       api.bind(this)(
