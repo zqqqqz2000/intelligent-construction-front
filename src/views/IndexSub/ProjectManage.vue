@@ -57,11 +57,24 @@
     </b-card>
     <!-- 项目进度面板 -->
     <b-card
-        header="项目进度"
         title="项目进度"
         class="project-half-card base-card"
     >
-      项目进度...尚未完成
+      <template slot="header"> 项目进度
+        <b-button @click="getProjectProcess()" size="sm" variant="outline-primary">
+          <b-icon icon="cloud-download"></b-icon>
+        </b-button>
+      </template>
+      <light-timeline :items="timelineItem">
+        <template slot='content' slot-scope='{ item }'>
+          <div class="timeline-content">
+            {{ item.full.comment }}
+          </div>
+          <div class="timeline-pic">
+            <pic :picid="item.full.pic" img-style="width: 200px; display: block"></pic>
+          </div>
+        </template>
+      </light-timeline>
     </b-card>
     <!-- 项目管理面板 -->
     <b-card
@@ -101,7 +114,7 @@
                   variant="success"
                   size="sm"
                   style="margin-right: 4px"
-                  @click="currProject=row.item; getProjectSupervisors()"
+                  @click="currProject=row.item; getProjectSupervisors(); getProjectProcess()"
                   :disabled="currProject && row.item.id === currProject.id"
               >
                 <b-icon icon="check2"></b-icon>
@@ -185,12 +198,15 @@
 </template>
 
 <script>
-import {api} from "@/utils";
-import {uploadPic} from "@/utils";
+import {api, uploadPic} from "@/utils";
+import Pic from "@/components/Pic";
 
 
 export default {
   name: "ProjectManage",
+  components: {
+    'pic': Pic
+  },
   mounted() {
     this.getMyProjectInfo(this.allProjectSelect.currPage);
   },
@@ -198,6 +214,7 @@ export default {
     return {
       addSupervisorUsername: '',
       currentProjectSupervisors: [],
+      currentProjectProcess: [],
       currProject: null,
       edit: false,
       changeDisplayMap: false,
@@ -219,6 +236,18 @@ export default {
     }
   },
   methods: {
+    getProjectProcess() {
+      api.bind(this)(
+          '/project/get_project_process',
+          {
+            'pid': this.currProject.id,
+          },
+          (response) => {
+            this.currentProjectProcess = response.data.processes;
+          },
+          true,
+      )
+    },
     getProjectSupervisors() {
       api.bind(this)(
           '/project/get_project_supervisors',
@@ -333,6 +362,16 @@ export default {
           true,
       )
     },
+  },
+  computed: {
+    timelineItem() {
+      return this.currentProjectProcess.map(e => {
+        return {
+          tag: e.date,
+          full: e,
+        };
+      });
+    }
   }
 }
 </script>
@@ -370,6 +409,9 @@ export default {
 .base-card {
   margin: 10px;
   float: left;
+  height: 40vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .project-info-card {
@@ -389,4 +431,12 @@ export default {
   margin-bottom: 10px;
 }
 
+.timeline-pic {
+  height: 200px;
+  margin-bottom: 30px;
+
+}
+
+.timeline-content {
+}
 </style>
