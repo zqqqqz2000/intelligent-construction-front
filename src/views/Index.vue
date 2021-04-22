@@ -45,7 +45,7 @@ export default {
           name: '通信管理',
           icon: 'chat-dots',
           click: () => {
-            this.$router.push('/login')
+            this.$router.push('/index/communicate')
           }
         },
         {

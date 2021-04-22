@@ -4,6 +4,7 @@ import Login from '@/views/Login'
 import Index from '@/views/Index'
 import DashBoard from "@/views/IndexSub/DashBoard";
 import ProjectManage from "@/views/IndexSub/ProjectManage";
+import Communicate from "@/views/IndexSub/Communicate";
 
 Vue.use(VueRouter)
 
@@ -27,6 +28,11 @@ const routes = [
         path: 'project-manage',
         name: 'ProjectManage',
         component: ProjectManage,
+      },
+      {
+        path: 'communicate',
+        name: 'communicate',
+        component: Communicate,
       }
     ]
   }

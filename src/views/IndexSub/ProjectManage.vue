@@ -103,7 +103,18 @@
         </div>
       </template>
       <div v-if="changeDisplayMap" class="change-display-zone">
-        地图显示
+        <baidu-map style="width: 100%; height: 100%" :center="center" :zoom="zoom" @ready="mapHandler">
+          <bm-navigation anchor="BMAP_ANCHOR_TOP_RIGHT"></bm-navigation>
+          <bm-marker :position="{
+            lng: eachPoint.lng,
+            lat: eachPoint.lat,
+          }" v-for="eachPoint in allProjectSelect.data" :key="eachPoint.id"
+                     :animation="currProject && currProject.id === eachPoint.id ? 'BMAP_ANIMATION_BOUNCE' : ''"
+                     @click="currProject = eachPoint; getProjectProcess()">
+            <bm-label :content="eachPoint.name" :labelStyle="{color: 'red', fontSize : '24px'}"
+                      :offset="{width: -35, height: 30}"/>
+          </bm-marker>
+        </baidu-map>
       </div>
       <div v-else class="change-display-zone">
         <!--表格-->
@@ -212,6 +223,8 @@ export default {
   },
   data() {
     return {
+      center: null,
+      zoom: 3,
       addSupervisorUsername: '',
       currentProjectSupervisors: [],
       currentProjectProcess: [],
@@ -236,6 +249,15 @@ export default {
     }
   },
   methods: {
+    mapHandler({BMap, map}) {
+      BMap;
+      map;
+      if (!this.center) {
+        this.center.lng = 116.404
+        this.center.lat = 39.915
+      }
+      this.zoom = 15
+    },
     getProjectProcess() {
       api.bind(this)(
           '/project/get_project_process',
@@ -327,7 +349,12 @@ export default {
           (response) => {
             const data = response.data;
             this.allProjectSelect.data = data.data;
-            console.log(data);
+            if (data.data.length) {
+              this.center = {
+                lat: data.data.lat,
+                lng: data.data.lng,
+              }
+            }
           },
           true
       );
