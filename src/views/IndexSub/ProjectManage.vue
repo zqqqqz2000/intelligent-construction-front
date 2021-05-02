@@ -189,8 +189,8 @@
         <b-form-input placeholder="监理用户名" v-model="addSupervisorUsername"></b-form-input>
 
         <b-input-group-append>
-          <b-button variant="outline-primary">
-            <b-icon icon="search" @click="addSupervisor"></b-icon>
+          <b-button variant="outline-primary" @click="addSupervisor">
+            <b-icon icon="search"></b-icon>
           </b-button>
         </b-input-group-append>
       </b-input-group>
